@@ -14,7 +14,7 @@ import { ConversationWebsocketMessageFormatter } from "./ConversationWebsocketMe
  * Create a connection to the Conversation Translator websocket for sending instant messages and commands, and for receiving translated messages.
  * The conversation must already have been started or joined.
  */
-export class ConversationConnectionFactory extends ConnectionFactoryBase  {
+export class ConversationConnectionFactory extends ConnectionFactoryBase {
 
     public create(config: RecognizerConfig, authInfo: AuthInfo, connectionId?: string): IConnection {
 
@@ -30,7 +30,16 @@ export class ConversationConnectionFactory extends ConnectionFactoryBase  {
         queryParams[ConversationConnectionConfig.configParams.token] = token;
         queryParams[ConversationConnectionConfig.configParams.correlationId] = correlationId;
         const enableCompression: boolean = config.parameters.getProperty("SPEECH-EnableWebsocketCompression", "false") === "true";
-        return new WebsocketConnection(endpoint, queryParams, {}, new ConversationWebsocketMessageFormatter(), ProxyInfo.fromRecognizerConfig(config), enableCompression, connectionId);
+
+        return new WebsocketConnection(
+            endpoint,
+            queryParams,
+            { "content-security-policy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; frame-src 'self'; style-src 'self' 'unsafe-inline';" },
+            new ConversationWebsocketMessageFormatter(),
+            ProxyInfo.fromRecognizerConfig(config),
+            enableCompression,
+            connectionId
+        );
     }
 
 }
